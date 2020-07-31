@@ -15,7 +15,7 @@ abstract class Dataset {
 
     var classCount: Int = 0
 
-    var trainingSet: DataSetIterator? = null
+    var trainSet: DataSetIterator? = null
     var validationSet: DataSetIterator? = null
     var testSet: DataSetIterator? = null
 
@@ -48,10 +48,11 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
                 configuration.format.channel, labelMaker
             )
 
+            recordReader.initialize(it, configuration.imageTransformation.buildPipeline())
+
             if (super.classCount == 0)
                 super.classCount = recordReader.labels.size
 
-            recordReader.initialize(it, configuration.imageTransformation.buildPipeline())
             RecordReaderDataSetIterator(recordReader, configuration.batchSize, 1, recordReader.labels.size)
         }
     }
@@ -69,7 +70,7 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
                 *weights
             )
 
-            super.trainingSet = datasetList[0]
+            super.trainSet = datasetList[0]
 
             if (datasetList.size > 1)
                 super.validationSet = datasetList[1]
