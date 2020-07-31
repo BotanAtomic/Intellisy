@@ -1,7 +1,6 @@
 package intellisy.dataset
 
 import intellisy.configuration.ClassifierConfiguration
-import intellisy.utils.toPair
 import org.datavec.api.io.filters.RandomPathFilter
 import org.datavec.api.io.labels.ParentPathLabelGenerator
 import org.datavec.api.split.FileSplit
@@ -16,46 +15,69 @@ abstract class Dataset {
 
     var classCount: Int = 0
 
-    abstract fun getDatasetIterators(configuration: ClassifierConfiguration): Pair<DataSetIterator, DataSetIterator>
+    var trainingSet: DataSetIterator? = null
+    var validationSet: DataSetIterator? = null
+    var testSet: DataSetIterator? = null
+
+    abstract fun loadDataset(configuration: ClassifierConfiguration)
 
     companion object {
 
-        fun fromCsv(file: File, labelIndex: Int) = CSVDataset(file, labelIndex)
-
-        fun fromFolder(folder: File) = FolderDataset(folder)
+        fun fromFolder(trainFolder: File, testFolder: File? = null) = FolderDataset(trainFolder, testFolder)
 
     }
 }
 
-class FolderDataset(private val folder: File) : Dataset() {
+class FolderDataset(private val trainFolder: File, private val testFolder: File?) : Dataset() {
 
-    override fun getDatasetIterators(configuration: ClassifierConfiguration): Pair<DataSetIterator, DataSetIterator> {
+    private fun getRecordReaderIterator(
+        file: File,
+        configuration: ClassifierConfiguration,
+        vararg weights: Double = doubleArrayOf(1.0)
+    ): List<DataSetIterator> {
         val random = Random(configuration.seed)
         val labelMaker = ParentPathLabelGenerator()
-        val fileSplit = FileSplit(folder, configuration.allowedFormats.toTypedArray(), random)
+        val fileSplit = FileSplit(file, configuration.allowedFormats.toTypedArray(), random)
         val randomFilter = RandomPathFilter(random, configuration.allowedFormats.toTypedArray(), 0)
-        val split = fileSplit.sample(randomFilter, 1 - configuration.validationSplit, configuration.validationSplit)
+        val split = fileSplit.sample(randomFilter, *weights)
 
         return split.map {
             val recordReader = ImageRecordReader(
-                    configuration.height,
-                    configuration.width,
-                    configuration.format.channel, labelMaker)
+                configuration.height,
+                configuration.width,
+                configuration.format.channel, labelMaker
+            )
 
             if (super.classCount == 0)
                 super.classCount = recordReader.labels.size
 
             recordReader.initialize(it, configuration.imageTransformation.buildPipeline())
             RecordReaderDataSetIterator(recordReader, configuration.batchSize, 1, recordReader.labels.size)
-        }.toPair()
+        }
     }
 
-}
+    override fun loadDataset(configuration: ClassifierConfiguration) {
+        configuration.apply {
+            val weights: DoubleArray = when {
+                validationSplit > 0 -> doubleArrayOf(1 - validationSplit, validationSplit)
+                else -> doubleArrayOf(1.0)
+            }
 
-class CSVDataset(private val file: File, private val labelIndex: Int) : Dataset() {
+            val datasetList = getRecordReaderIterator(
+                trainFolder,
+                this,
+                *weights
+            )
 
-    override fun getDatasetIterators(configuration: ClassifierConfiguration): Pair<DataSetIterator, DataSetIterator> {
-        TODO("Not yet implemented")
+            super.trainingSet = datasetList[0]
+
+            if (datasetList.size > 1)
+                super.validationSet = datasetList[1]
+
+            if (testFolder != null) {
+                super.testSet = getRecordReaderIterator(testFolder, configuration)[0]
+            }
+        }
     }
 
 }
