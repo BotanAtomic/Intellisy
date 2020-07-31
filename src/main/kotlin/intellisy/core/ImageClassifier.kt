@@ -6,13 +6,14 @@ import intellisy.exception.NoDatasetException
 
 class ImageClassifier
 (
-        var dataset: Dataset? = null,
         val configuration: ClassifierConfiguration = ClassifierConfiguration()
 ) {
 
+    lateinit var dataset: Dataset
+
 
     fun train() {
-        if (dataset == null)
+        if (::dataset.isInitialized.not())
             throw NoDatasetException()
     }
 

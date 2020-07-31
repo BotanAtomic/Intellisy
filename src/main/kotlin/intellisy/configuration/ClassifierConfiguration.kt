@@ -3,6 +3,11 @@ package intellisy.configuration
 import intellisy.image.ImageFormat
 import intellisy.image.ImageTransformation
 import org.datavec.image.loader.NativeImageLoader
+import org.deeplearning4j.nn.conf.CacheMode
+import org.deeplearning4j.nn.conf.WorkspaceMode
+import org.deeplearning4j.nn.conf.layers.ConvolutionLayer
+import org.nd4j.linalg.learning.config.Adam
+import org.nd4j.linalg.learning.config.IUpdater
 import java.security.SecureRandom
 
 data class ClassifierConfiguration(
@@ -10,9 +15,16 @@ data class ClassifierConfiguration(
         val height: Long = 28,
         val format: ImageFormat = ImageFormat.GRAYSCALE,
         val allowedFormats: List<String> = NativeImageLoader.ALLOWED_FORMATS.toList(),
+        val imageTransformation: ImageTransformation = ImageTransformation(),
+
         val batchSize: Int = 32,
         val epochs: Int = -1,
         val seed: Long = SecureRandom().nextLong(),
         val validationSplit: Double = 0.2,
-        val imageTransformation: ImageTransformation = ImageTransformation()
+
+        val updater: IUpdater = Adam(),
+
+        val cacheMode: CacheMode = CacheMode.DEVICE,
+        val cudnnAlgoMode: ConvolutionLayer.AlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST,
+        val workspaceMode: WorkspaceMode = WorkspaceMode.ENABLED
 )
