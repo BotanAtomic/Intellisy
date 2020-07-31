@@ -1,6 +1,7 @@
 package intellisy.configuration
 
 import intellisy.image.ImageFormat
+import intellisy.image.ImageTransformation
 import org.datavec.image.loader.NativeImageLoader
 import java.security.SecureRandom
 
@@ -12,5 +13,6 @@ data class ClassifierConfiguration(
         val batchSize: Int = 32,
         val epochs: Int = -1,
         val seed: Long = SecureRandom().nextLong(),
-        val validationSplit: Double = 0.2
+        val validationSplit: Double = 0.2,
+        val imageTransformation: ImageTransformation = ImageTransformation()
 )

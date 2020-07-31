@@ -14,6 +14,8 @@ import java.util.*
 
 abstract class Dataset {
 
+    var classCount: Int = 0
+
     abstract fun getDatasetIterators(configuration: ClassifierConfiguration): Pair<DataSetIterator, DataSetIterator>
 
     companion object {
@@ -38,7 +40,12 @@ class FolderDataset(private val folder: File) : Dataset() {
             val recordReader = ImageRecordReader(
                     configuration.height,
                     configuration.width,
-                    configuration.format.channel, labelMaker).apply { initialize(it) }
+                    configuration.format.channel, labelMaker)
+
+            if (super.classCount == 0)
+                super.classCount = recordReader.labels.size
+
+            recordReader.initialize(it, configuration.imageTransformation.buildPipeline())
             RecordReaderDataSetIterator(recordReader, configuration.batchSize, 1, recordReader.labels.size)
         }.toPair()
     }
