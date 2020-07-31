@@ -6,8 +6,6 @@ import org.datavec.image.loader.NativeImageLoader
 import org.deeplearning4j.nn.conf.CacheMode
 import org.deeplearning4j.nn.conf.WorkspaceMode
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer
-import org.nd4j.linalg.learning.config.Adam
-import org.nd4j.linalg.learning.config.IUpdater
 import java.security.SecureRandom
 
 data class ClassifierConfiguration(
@@ -18,11 +16,9 @@ data class ClassifierConfiguration(
         val imageTransformation: ImageTransformation = ImageTransformation(),
 
         val batchSize: Int = 32,
-        val epochs: Int = -1,
+        val epochs: Int = 10,
         val seed: Long = SecureRandom().nextLong(),
         val validationSplit: Double = 0.2,
-
-        val updater: IUpdater = Adam(),
 
         val cacheMode: CacheMode = CacheMode.DEVICE,
         val cudnnAlgoMode: ConvolutionLayer.AlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST,
