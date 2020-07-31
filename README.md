@@ -20,6 +20,5 @@ More documentation comming soon...
     val testEval = classifier.train { validationEval -> println(validationEval.stats()) }
     
     println("Model accuracy ${testEval.accuracy()})
-    
-    ```
+  ```
 
