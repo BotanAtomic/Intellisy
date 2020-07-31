@@ -3,9 +3,11 @@ package intellisy.core
 import intellisy.dataset.Dataset
 import intellisy.exception.NoDatasetException
 
-class ImageClassifier {
+class ImageClassifier
+(
+        var dataset: Dataset? = null
+) {
 
-    var dataset: Dataset? = null
 
     fun train() {
         if (dataset == null)
