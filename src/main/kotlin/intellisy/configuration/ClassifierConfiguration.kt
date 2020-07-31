@@ -10,6 +10,7 @@ data class ClassifierConfiguration(
         val format: ImageFormat = ImageFormat.GRAYSCALE,
         val allowedFormats: List<String> = NativeImageLoader.ALLOWED_FORMATS.toList(),
         val batchSize: Int = 32,
+        val epochs: Int = -1,
         val seed: Long = SecureRandom().nextLong(),
         val validationSplit: Double = 0.2
 )
