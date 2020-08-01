@@ -4,7 +4,9 @@ import intellisy.configuration.ClassifierConfiguration
 import intellisy.dataset.Dataset
 import intellisy.models.NNModel
 import intellisy.models.SimpleCNNModel
+import org.deeplearning4j.nn.api.Model
 import org.deeplearning4j.nn.api.NeuralNetwork
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.nd4j.evaluation.classification.Evaluation
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 
@@ -24,13 +26,14 @@ class ImageClassifier
     }
 
     fun train(callback: (Evaluation) -> Unit): Evaluation? {
-        dataset.loadDataset(configuration)
+        dataset.init(configuration)
 
         neuralNetwork = model.getModel(this)
+        (neuralNetwork as Model).setListeners(ScoreIterationListener(50))
         val dataNormalizer = model.getScaler()
 
         dataset.apply {
-            listOf(trainSet, testSet, validationSet).forEach {
+            listOf(getTrainingSet(), getValidationSet(), getTestSet()).forEach {
                 if (it != null) {
                     dataNormalizer.fit(it)
                     it.preProcessor = dataNormalizer
@@ -38,14 +41,14 @@ class ImageClassifier
             }
 
             for (i in 0 until configuration.epochs) {
-                neuralNetwork.fit(trainSet)
+                neuralNetwork.fit(getTrainingSet())
 
-                if (validationSet != null) {
-                    callback(eval(validationSet))
+                if (getValidationSet() != null) {
+                    callback(eval(getValidationSet()))
                 }
             }
-            if (testSet != null) {
-                return@train eval(testSet)
+            if (getTestSet() != null) {
+                return@train eval(getTestSet())
             } else return@train null
         }
     }

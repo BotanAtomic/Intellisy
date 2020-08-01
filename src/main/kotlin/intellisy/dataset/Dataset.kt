@@ -11,15 +11,17 @@ import java.io.File
 import java.util.*
 
 
-abstract class Dataset {
+interface Dataset {
 
-    var classCount: Int = 0
+    fun getClassCount(): Int
 
-    var trainSet: DataSetIterator? = null
-    var validationSet: DataSetIterator? = null
-    var testSet: DataSetIterator? = null
+    fun getTrainingSet(): DataSetIterator?
 
-    abstract fun loadDataset(configuration: ClassifierConfiguration)
+    fun getValidationSet(): DataSetIterator?
+
+    fun getTestSet(): DataSetIterator?
+
+    fun init(configuration: ClassifierConfiguration)
 
     companion object {
 
@@ -28,7 +30,12 @@ abstract class Dataset {
     }
 }
 
-class FolderDataset(private val trainFolder: File, private val testFolder: File?) : Dataset() {
+class FolderDataset(private val trainFolder: File, private val testFolder: File?) : Dataset {
+
+    private var classCount = 0
+    private var trainSet: DataSetIterator? = null
+    private var validationSet: DataSetIterator? = null
+    private var testSet: DataSetIterator? = null
 
     private fun getRecordReaderIterator(
         file: File,
@@ -50,14 +57,23 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
 
             recordReader.initialize(it, configuration.imageTransformation.buildPipeline())
 
-            if (super.classCount == 0)
-                super.classCount = recordReader.labels.size
+            if (classCount == 0)
+                classCount = recordReader.labels.size
 
             RecordReaderDataSetIterator(recordReader, configuration.batchSize, 1, recordReader.labels.size)
         }
     }
 
-    override fun loadDataset(configuration: ClassifierConfiguration) {
+
+    override fun getClassCount() = classCount
+
+    override fun getTrainingSet() = trainSet
+
+    override fun getValidationSet() = validationSet
+
+    override fun getTestSet() = testSet
+
+    override fun init(configuration: ClassifierConfiguration) {
         configuration.apply {
             val weights: DoubleArray = when {
                 validationSplit > 0 -> doubleArrayOf(1 - validationSplit, validationSplit)
@@ -70,13 +86,13 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
                 *weights
             )
 
-            super.trainSet = datasetList[0]
+            trainSet = datasetList[0]
 
             if (datasetList.size > 1)
-                super.validationSet = datasetList[1]
+                validationSet = datasetList[1]
 
             if (testFolder != null) {
-                super.testSet = getRecordReaderIterator(testFolder, configuration)[0]
+                testSet = getRecordReaderIterator(testFolder, configuration)[0]
             }
         }
     }
