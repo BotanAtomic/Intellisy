@@ -13,8 +13,7 @@ More documentation comming soon...
         width = 28,
         height = 28,
         format = ImageFormat.GRAYSCALE
-    ),
-    model = SmallCNNModel()
+    )
  )
 
  val testEval = classifier.train { validationEval -> println(validationEval.stats()) }
