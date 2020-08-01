@@ -86,13 +86,13 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
                 *weights
             )
 
-            trainSet = datasetList[0]
+            trainSet = datasetList.first()
 
-            if (datasetList.size > 1)
-                validationSet = datasetList[1]
+            if (datasetList.size == 2)
+                validationSet = datasetList.last()
 
             if (testFolder != null) {
-                testSet = getRecordReaderIterator(testFolder, configuration)[0]
+                testSet = getRecordReaderIterator(testFolder, configuration).first()
             }
         }
     }

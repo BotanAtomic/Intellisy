@@ -32,7 +32,7 @@ class VGG16Model : NNModel {
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         classifier.configuration.apply {
             return VGG16.builder()
-                .numClasses(classifier.dataset.classCount)
+                .numClasses(classifier.dataset.getClassCount())
                 .inputShape(intArrayOf(format.channel.toInt(), width.toInt(), height.toInt()))
                 .updater(Nesterovs())
                 .cacheMode(cacheMode)
@@ -53,12 +53,12 @@ class SimpleCNNModel : NNModel {
 
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         classifier.configuration.apply {
-            val inputShape = intArrayOf(format.channel.toInt(), width.toInt(), height.toInt())
+            val inputShape = longArrayOf(format.channel, width, height)
 
 
             val conf = NeuralNetConfiguration.Builder().seed(seed)
-                .activation(Activation.IDENTITY)
-                .weightInit(WeightInit.RELU)
+                .activation(Activation.RELU)
+                .weightInit(WeightInit.XAVIER)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .updater(Adam())
                 .cacheMode(cacheMode)
@@ -66,63 +66,42 @@ class SimpleCNNModel : NNModel {
                 .inferenceWorkspaceMode(workspaceMode)
                 .convolutionMode(ConvolutionMode.Same)
                 .list()
-                .layer(
-                    ConvolutionLayer.Builder(7, 7)
-                        .nIn(inputShape[0]).nOut(16)
-                        .build()
-                )
+                .layer(ConvolutionLayer.Builder(7, 7).nIn(inputShape[0]).nOut(16).build())
                 .layer(BatchNormalization())
-                .layer(
-                    ConvolutionLayer.Builder(7, 7)
-                        .nIn(16)
-                        .nOut(16)
-                        .build()
-                )
+                .layer(ConvolutionLayer.Builder(7, 7).nIn(16).nOut(16).build())
                 .layer(BatchNormalization())
-                .layer(reluActivation())
                 .layer(maxPool())
 
-                .layer(dropoutLayer(0.5)) // block 2
+                .layer(dropoutLayer()) // block 2
                 .layer(convLayer(32))
                 .layer(BatchNormalization())
                 .layer(convLayer(32))
                 .layer(BatchNormalization())
-                .layer(reluActivation())
                 .layer(maxPool())
 
-                .layer(dropoutLayer(0.5)) // block 3
+                .layer(dropoutLayer()) // block 3
                 .layer(convLayer(64))
                 .layer(BatchNormalization())
                 .layer(convLayer(64))
                 .layer(BatchNormalization())
-                .layer(reluActivation())
                 .layer(maxPool())
 
-                .layer(dropoutLayer(0.5)) // block 4
+                .layer(dropoutLayer()) // block 4
                 .layer(convLayer(128))
                 .layer(BatchNormalization())
                 .layer(convLayer(128))
                 .layer(BatchNormalization())
-                .layer(reluActivation())
                 .layer(maxPool())
 
 
-                .layer(dropoutLayer(0.5)) // block 5
+                .layer(dropoutLayer()) // block 5
                 .layer(convLayer(256))
                 .layer(BatchNormalization())
-                .layer(
-                    ConvolutionLayer.Builder(3, 3)
-                        .nOut(classifier.dataset.classCount)
-                        .build()
-                )
+                .layer(ConvolutionLayer.Builder(3, 3).nOut(classifier.dataset.getClassCount()).build())
                 .layer(GlobalPoolingLayer.Builder(PoolingType.MAX).build())
-                .layer(OutputLayer.Builder().nOut(classifier.dataset.classCount).build())
+                .layer(OutputLayer.Builder().nOut(classifier.dataset.getClassCount()).build())
                 .setInputType(
-                    InputType.convolutional(
-                        inputShape[2].toLong(),
-                        inputShape[1].toLong(),
-                        inputShape[0].toLong()
-                    )
+                    InputType.convolutional(inputShape[2], inputShape[1], inputShape[0])
                 ).build()
 
             return MultiLayerNetwork(conf).apply { init() }
@@ -155,7 +134,7 @@ class SmallCNNModel : NNModel {
                 .layer(DenseLayer.Builder().nOut(512).dropOut(0.5).build())
                 .layer(
                     OutputLayer.Builder(LossFunctions.LossFunction.RECONSTRUCTION_CROSSENTROPY)
-                        .nOut(classifier.dataset.classCount)
+                        .nOut(classifier.dataset.getClassCount())
                         .activation(Activation.SOFTMAX)
                         .build()
                 )
@@ -172,11 +151,7 @@ class SmallCNNModel : NNModel {
     }
 }
 
-private fun reluActivation(): ActivationLayer? {
-    return ActivationLayer.Builder().activation(Activation.RELU).build()
-}
-
-private fun dropoutLayer(value: Double): DropoutLayer {
+private fun dropoutLayer(value: Double = 0.5): DropoutLayer {
     return DropoutLayer.Builder(value).build()
 }
 
