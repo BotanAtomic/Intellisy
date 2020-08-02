@@ -149,7 +149,7 @@ class SmallCNNModel : NNModel {
                 .layer(convLayer(64, 0.0))
                 .layer(convLayer(64, 1.0))
                 .layer(maxPool())
-                .layer(DenseLayer.Builder().nOut(512).dropOut(0.5).build())
+                .layer(DenseLayer.Builder().nOut(512).dropOut(0.4).build())
                 .layer(
                     OutputLayer.Builder(LossFunctions.LossFunction.RECONSTRUCTION_CROSSENTROPY)
                         .nOut(classifier.getDataset().getClassCount())
