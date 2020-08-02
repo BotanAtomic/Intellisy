@@ -1,6 +1,6 @@
 package intellisy.image
 
-enum class ImageFormat(val channel: Long) {
+enum class ImageFormat(val channels: Long) {
     GRAYSCALE(1),
     RGB(3)
 }
