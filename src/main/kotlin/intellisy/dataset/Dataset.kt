@@ -52,7 +52,7 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
             val recordReader = ImageRecordReader(
                 configuration.height,
                 configuration.width,
-                configuration.format.channel, labelMaker
+                configuration.format.channels, labelMaker
             )
 
             recordReader.initialize(it, configuration.imageTransformation.buildPipeline())

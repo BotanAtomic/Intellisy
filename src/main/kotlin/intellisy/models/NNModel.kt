@@ -1,17 +1,20 @@
 package intellisy.models
 
 import intellisy.core.ImageClassifier
+import intellisy.image.Image
 import org.deeplearning4j.nn.api.NeuralNetwork
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.ConvolutionMode
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration
 import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.*
+import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.util.ModelSerializer
 import org.deeplearning4j.zoo.model.VGG16
 import org.nd4j.linalg.activations.Activation
+import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler
 import org.nd4j.linalg.dataset.api.preprocessor.VGG16ImagePreProcessor
@@ -27,6 +30,9 @@ interface NNModel {
     fun getScaler(): DataNormalization = ImagePreProcessingScaler(0.0, 1.0)
 
     fun restore(file: File): NeuralNetwork?
+
+    fun output(network: NeuralNetwork, image: Image): INDArray =
+        (network as MultiLayerNetwork).output(image)
 }
 
 
@@ -36,7 +42,7 @@ class VGG16Model : NNModel {
         classifier.configuration.apply {
             return VGG16.builder()
                 .numClasses(classifier.getDataset().getClassCount())
-                .inputShape(intArrayOf(format.channel.toInt(), width.toInt(), height.toInt()))
+                .inputShape(intArrayOf(format.channels.toInt(), width.toInt(), height.toInt()))
                 .updater(Nesterovs())
                 .cacheMode(cacheMode)
                 .cudnnAlgoMode(cudnnAlgoMode)
@@ -52,6 +58,9 @@ class VGG16Model : NNModel {
 
     override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreComputationGraph(file)
 
+    override fun output(network: NeuralNetwork, image: Image): INDArray =
+        (network as ComputationGraph).outputSingle(image)
+
 }
 
 class SimpleCNNModel : NNModel {
@@ -59,7 +68,7 @@ class SimpleCNNModel : NNModel {
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         val classCount = classifier.getDataset().getClassCount()
         classifier.configuration.apply {
-            val inputShape = longArrayOf(format.channel, width, height)
+            val inputShape = longArrayOf(format.channels, width, height)
 
 
             val conf = NeuralNetConfiguration.Builder().seed(seed)
@@ -122,7 +131,7 @@ class SmallCNNModel : NNModel {
 
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         classifier.configuration.apply {
-            val inputShape = intArrayOf(format.channel.toInt(), width.toInt(), height.toInt())
+            val inputShape = intArrayOf(format.channels.toInt(), width.toInt(), height.toInt())
 
 
             val conf = NeuralNetConfiguration.Builder().seed(seed)
@@ -160,7 +169,6 @@ class SmallCNNModel : NNModel {
     }
 
     override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreMultiLayerNetwork(file)
-
 }
 
 private fun dropoutLayer(value: Double = 0.5): DropoutLayer {

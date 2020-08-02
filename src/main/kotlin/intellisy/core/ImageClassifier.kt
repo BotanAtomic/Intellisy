@@ -3,6 +3,8 @@ package intellisy.core
 import intellisy.configuration.ClassifierConfiguration
 import intellisy.dataset.Dataset
 import intellisy.exception.NoDatasetException
+import intellisy.image.Image
+import intellisy.image.ImageLoader
 import intellisy.models.NNModel
 import intellisy.models.SimpleCNNModel
 import intellisy.prediction.Prediction
@@ -22,6 +24,8 @@ class ImageClassifier
 ) {
 
     lateinit var neuralNetwork: NeuralNetwork
+
+    val imageLoader = ImageLoader(configuration)
 
     private fun eval(dataset: DataSetIterator?): Evaluation? {
         if (dataset == null) return null
@@ -60,8 +64,11 @@ class ImageClassifier
         }
     }
 
-    fun predict(): Prediction {
-        TODO("not yet implemented")
+    fun predict(image: Image): Prediction {
+        model.getScaler().transform(image)
+        val output = model.output(neuralNetwork, image)
+        val index = output.argMax(1).getInt(0)
+        return Prediction(index, output.getDouble(index))
     }
 
     fun save(file: File) = kotlin.runCatching {
