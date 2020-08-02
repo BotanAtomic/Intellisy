@@ -9,6 +9,7 @@ import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.*
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
+import org.deeplearning4j.util.ModelSerializer
 import org.deeplearning4j.zoo.model.VGG16
 import org.nd4j.linalg.activations.Activation
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization
@@ -17,6 +18,7 @@ import org.nd4j.linalg.dataset.api.preprocessor.VGG16ImagePreProcessor
 import org.nd4j.linalg.learning.config.Adam
 import org.nd4j.linalg.learning.config.Nesterovs
 import org.nd4j.linalg.lossfunctions.LossFunctions
+import java.io.File
 
 interface NNModel {
 
@@ -24,6 +26,7 @@ interface NNModel {
 
     fun getScaler(): DataNormalization = ImagePreProcessingScaler(0.0, 1.0)
 
+    fun restore(file: File): NeuralNetwork?
 }
 
 
@@ -32,7 +35,7 @@ class VGG16Model : NNModel {
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         classifier.configuration.apply {
             return VGG16.builder()
-                .numClasses(classifier.dataset.getClassCount())
+                .numClasses(classifier.getDataset().getClassCount())
                 .inputShape(intArrayOf(format.channel.toInt(), width.toInt(), height.toInt()))
                 .updater(Nesterovs())
                 .cacheMode(cacheMode)
@@ -47,11 +50,14 @@ class VGG16Model : NNModel {
         return VGG16ImagePreProcessor()
     }
 
+    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreComputationGraph(file)
+
 }
 
 class SimpleCNNModel : NNModel {
 
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
+        val classCount = classifier.getDataset().getClassCount()
         classifier.configuration.apply {
             val inputShape = longArrayOf(format.channel, width, height)
 
@@ -97,9 +103,9 @@ class SimpleCNNModel : NNModel {
                 .layer(dropoutLayer()) // block 5
                 .layer(convLayer(256))
                 .layer(BatchNormalization())
-                .layer(ConvolutionLayer.Builder(3, 3).nOut(classifier.dataset.getClassCount()).build())
+                .layer(ConvolutionLayer.Builder(3, 3).nOut(classCount).build())
                 .layer(GlobalPoolingLayer.Builder(PoolingType.MAX).build())
-                .layer(OutputLayer.Builder().nOut(classifier.dataset.getClassCount()).build())
+                .layer(OutputLayer.Builder().nOut(classCount).build())
                 .setInputType(
                     InputType.convolutional(inputShape[2], inputShape[1], inputShape[0])
                 ).build()
@@ -107,6 +113,9 @@ class SimpleCNNModel : NNModel {
             return MultiLayerNetwork(conf).apply { init() }
         }
     }
+
+    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreMultiLayerNetwork(file)
+
 }
 
 class SmallCNNModel : NNModel {
@@ -134,7 +143,7 @@ class SmallCNNModel : NNModel {
                 .layer(DenseLayer.Builder().nOut(512).dropOut(0.5).build())
                 .layer(
                     OutputLayer.Builder(LossFunctions.LossFunction.RECONSTRUCTION_CROSSENTROPY)
-                        .nOut(classifier.dataset.getClassCount())
+                        .nOut(classifier.getDataset().getClassCount())
                         .activation(Activation.SOFTMAX)
                         .build()
                 )
@@ -149,6 +158,9 @@ class SmallCNNModel : NNModel {
             return MultiLayerNetwork(conf).apply { init() }
         }
     }
+
+    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreMultiLayerNetwork(file)
+
 }
 
 private fun dropoutLayer(value: Double = 0.5): DropoutLayer {
