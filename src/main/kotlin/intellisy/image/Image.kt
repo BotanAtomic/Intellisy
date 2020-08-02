@@ -6,6 +6,8 @@ import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 import org.opencv.core.Mat
 import java.io.File
+import java.net.URL
+import javax.imageio.ImageIO
 
 typealias Image = INDArray
 
@@ -24,4 +26,7 @@ class ImageLoader(configuration: ClassifierConfiguration) {
     fun fromNumpy(mat: Mat): Image = loader.asMatrix(mat)
 
     fun fromFile(file: File): Image = loader.asMatrix(file)
+
+    fun fromUrl(url: String): Image = loader.asMatrix(ImageIO.read(URL(url)))
+
 }
