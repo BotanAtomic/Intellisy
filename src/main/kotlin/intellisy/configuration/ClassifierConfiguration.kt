@@ -19,7 +19,7 @@ data class ClassifierConfiguration(
     val batchSize: Int = 32,
     val epochs: Int = 10,
     val seed: Long = SecureRandom().nextLong(),
-    val validationSplit: Double = 0.2,
+    val validationSplit: Double = 0.1,
 
     val cacheMode: CacheMode = CacheMode.DEVICE,
     val cudnnAlgoMode: ConvolutionLayer.AlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST,
