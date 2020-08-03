@@ -1,6 +1,7 @@
 package intellisy.dataset
 
 import intellisy.configuration.ClassifierConfiguration
+import org.datavec.api.io.filters.BalancedPathFilter
 import org.datavec.api.io.filters.RandomPathFilter
 import org.datavec.api.io.labels.ParentPathLabelGenerator
 import org.datavec.api.split.FileSplit
@@ -25,12 +26,17 @@ interface Dataset {
 
     companion object {
 
-        fun fromFolder(trainFolder: File, testFolder: File? = null) = FolderDataset(trainFolder, testFolder)
+        fun fromFolder(trainFolder: File, testFolder: File? = null, balanced: Boolean = false) =
+            FolderDataset(trainFolder, testFolder, balanced)
 
     }
 }
 
-class FolderDataset(private val trainFolder: File, private val testFolder: File?) : Dataset {
+class FolderDataset(
+    private val trainFolder: File,
+    private val testFolder: File?,
+    private val balanced: Boolean
+) : Dataset {
 
     private var classCount = 0
     private var trainSet: DataSetIterator? = null
@@ -45,8 +51,11 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
         val random = Random(configuration.seed)
         val labelMaker = ParentPathLabelGenerator()
         val fileSplit = FileSplit(file, configuration.allowedFormats.toTypedArray(), random)
-        val randomFilter = RandomPathFilter(random, configuration.allowedFormats.toTypedArray(), 0)
-        val split = fileSplit.sample(randomFilter, *weights)
+        val imageFilter = when (balanced) {
+            true -> BalancedPathFilter(random, configuration.allowedFormats.toTypedArray(), labelMaker, 0)
+            else -> RandomPathFilter(random, configuration.allowedFormats.toTypedArray(), 0)
+        }
+        val split = fileSplit.sample(imageFilter, *weights)
 
         return split.map {
             val recordReader = ImageRecordReader(
@@ -55,7 +64,7 @@ class FolderDataset(private val trainFolder: File, private val testFolder: File?
                 configuration.format.channels, labelMaker
             )
 
-            recordReader.initialize(it, configuration.imageTransformation.buildPipeline())
+            recordReader.initialize(it, configuration.dataAugmentation.buildPipeline())
 
             if (classCount == 0)
                 classCount = recordReader.labels.size

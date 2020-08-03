@@ -2,17 +2,23 @@ import intellisy.configuration.ClassifierConfiguration
 import intellisy.core.ImageClassifier
 import intellisy.dataset.Dataset
 import intellisy.image.ImageFormat
+import intellisy.image.ImageTransformation
 import intellisy.models.SimpleCNNModel
 import intellisy.models.SmallCNNModel
+import org.datavec.image.transform.CropImageTransform
+import org.datavec.image.transform.FlipImageTransform
+import org.datavec.image.transform.ScaleImageTransform
+import org.datavec.image.transform.WarpImageTransform
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import java.util.*
 import kotlin.test.assertNotNull
 
 class MnistTest {
 
     @Test
-    fun mnistTestSmallCNN() {
+    fun mnistSmallCNN() {
         val classifier = ImageClassifier(
             dataset = Dataset.fromFolder(
                 trainFolder = File("dataset/mnist/train"),
@@ -34,7 +40,7 @@ class MnistTest {
     }
 
     @Test
-    fun mnistTestSimpleCNN() {
+    fun mnistSimpleCNN() {
         val classifier = ImageClassifier(
             dataset = Dataset.fromFolder(
                 trainFolder = File("dataset/mnist/train"),
@@ -57,7 +63,7 @@ class MnistTest {
     }
 
     @Test
-    fun mnistTestSmallCNNFromFile() {
+    fun mnistSmallCNNFromFile() {
         val classifier = ImageClassifier(
             dataset = Dataset.fromFolder(
                 trainFolder = File("dataset/mnist/train"),
@@ -79,6 +85,37 @@ class MnistTest {
             assertTrue(prediction.index == 5)
         }
 
+    }
+
+    @Test
+    fun mnistSmallCNNDataAugmentation() {
+        val random = Random()
+
+        val classifier = ImageClassifier(
+            dataset = Dataset.fromFolder(
+                trainFolder = File("dataset/mnist/train"),
+                testFolder = File("dataset/mnist/test")
+            ),
+            configuration = ClassifierConfiguration(
+                width = 28,
+                height = 28,
+                format = ImageFormat.GRAYSCALE,
+                dataAugmentation = ImageTransformation().apply {
+                    add(CropImageTransform(random, 5), probability = 0.5)
+                    add(FlipImageTransform(random), probability = 0.2)
+                    add(ScaleImageTransform(random, 1.5f), 0.5)
+                    add(WarpImageTransform(random, 42.0f), probability = 0.2)
+                },
+                epochs = 25
+            ),
+            model = SmallCNNModel()
+        )
+
+        val testEval = classifier.train { validationEval -> println(validationEval.stats()) }
+
+        classifier.save(File("models/smallCNN_augmented.zip"))
+        assertNotNull(testEval)
+        assertTrue(testEval.accuracy() > 0.992)
     }
 
 }
