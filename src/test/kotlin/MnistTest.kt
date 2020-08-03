@@ -6,9 +6,7 @@ import intellisy.image.ImageTransformation
 import intellisy.models.SimpleCNNModel
 import intellisy.models.SmallCNNModel
 import org.datavec.image.transform.CropImageTransform
-import org.datavec.image.transform.FlipImageTransform
-import org.datavec.image.transform.ScaleImageTransform
-import org.datavec.image.transform.WarpImageTransform
+import org.datavec.image.transform.RotateImageTransform
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -101,12 +99,10 @@ class MnistTest {
                 height = 28,
                 format = ImageFormat.GRAYSCALE,
                 dataAugmentation = ImageTransformation().apply {
-                    add(CropImageTransform(random, 5), probability = 0.5)
-                    add(FlipImageTransform(random), probability = 0.2)
-                    add(ScaleImageTransform(random, 1.5f), 0.5)
-                    add(WarpImageTransform(random, 42.0f), probability = 0.2)
+                    add(CropImageTransform(random, 5), probability = 0.2)
+                    add(RotateImageTransform(random, 10.0f, 10.0f, 60.0f, 1.2f), probability = .1)
                 },
-                epochs = 25
+                epochs = 30
             ),
             model = SmallCNNModel()
         )
