@@ -25,12 +25,15 @@ class MnistTest {
             configuration = ClassifierConfiguration(
                 width = 28,
                 height = 28,
-                format = ImageFormat.GRAYSCALE
+                format = ImageFormat.GRAYSCALE,
+                validationSplit = 0.1
             ),
             model = SmallCNNModel()
         )
 
         val testEval = classifier.train { validationEval -> println(validationEval.stats()) }
+
+        println(testEval?.stats())
 
         classifier.save(File("models/smallCNN.zip"))
         assertNotNull(testEval)
@@ -99,10 +102,10 @@ class MnistTest {
                 height = 28,
                 format = ImageFormat.GRAYSCALE,
                 dataAugmentation = ImageTransformation().apply {
-                    add(CropImageTransform(random, 5), probability = 0.2)
-                    add(RotateImageTransform(random, 10.0f, 10.0f, 60.0f, 1.2f), probability = .1)
+                    add(CropImageTransform(random, 5), probability = .05)
+                    add(RotateImageTransform(random, 5.0f, 5.0f, 30.0f, 0.2f), probability = .05)
                 },
-                epochs = 30
+                epochs = 15
             ),
             model = SmallCNNModel()
         )
@@ -111,7 +114,7 @@ class MnistTest {
 
         classifier.save(File("models/smallCNN_augmented.zip"))
         assertNotNull(testEval)
-        assertTrue(testEval.accuracy() > 0.992)
+        assertTrue(testEval.accuracy() > 0.99) //99
     }
 
 }
