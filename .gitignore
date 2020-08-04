@@ -1,0 +1,8 @@
+# Project exclude paths
+/.gradle/
+/.idea/
+/gradle/
+/build/
+/dataset/
+/models/
+./todo.txt
