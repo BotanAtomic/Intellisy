@@ -16,14 +16,14 @@ import org.nd4j.evaluation.classification.Evaluation
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 import java.io.File
 
-class ImageClassifier
+open class ImageClassifier
     (
     val configuration: ClassifierConfiguration = ClassifierConfiguration(),
     private val dataset: Dataset? = null,
     private val model: NNModel = SimpleCNNModel()
 ) {
 
-    lateinit var neuralNetwork: NeuralNetwork
+    private lateinit var neuralNetwork: NeuralNetwork
 
     val imageLoader = ImageLoader(configuration)
 
@@ -38,7 +38,7 @@ class ImageClassifier
         model.restore(file)?.let { neuralNetwork = it }
     }
 
-    fun train(callback: (Evaluation) -> Unit): Evaluation? {
+    open fun train(callback: (Evaluation) -> Unit): Evaluation? {
         if (dataset == null) throw NoDatasetException()
 
         dataset.init(configuration)
@@ -54,6 +54,7 @@ class ImageClassifier
                     it.preProcessor = dataNormalizer
                 }
             }
+
 
             for (i in 0 until configuration.epochs) {
                 neuralNetwork.fit(getTrainingSet())
