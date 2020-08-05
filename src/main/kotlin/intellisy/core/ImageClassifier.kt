@@ -10,7 +10,6 @@ import intellisy.models.SimpleCNNModel
 import intellisy.prediction.Prediction
 import org.deeplearning4j.nn.api.Model
 import org.deeplearning4j.nn.api.NeuralNetwork
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.evaluation.classification.Evaluation
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
@@ -44,7 +43,6 @@ open class ImageClassifier
         dataset.init(configuration)
 
         neuralNetwork = model.getModel(this)
-        (neuralNetwork as Model).setListeners(ScoreIterationListener(100))
         val dataNormalizer = model.getScaler()
 
         dataset.apply {
