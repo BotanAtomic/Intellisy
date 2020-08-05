@@ -5,6 +5,8 @@ plugins {
 group = "com.atomic"
 version = "1.0"
 
+val dl4jVersion = "1.0.0-beta7"
+
 repositories {
     mavenCentral()
 }
@@ -12,22 +14,23 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    if (project.findProperty("gpu") == true) {
+    println("GPU ${project.findProperty("dl4j_gpu")}")
+
+    if (project.findProperty("dl4j_gpu") == "true") {
         val cudaVersion = when (project.hasProperty("cuda-version")) {
             true -> project.property("cuda-version")
             else -> "10.1"
         }
-        api("org.nd4j:nd4j-cuda-$cudaVersion-platform:1.0.0-beta7")
-        api("org.deeplearning4j:deeplearning4j-cuda-$cudaVersion:1.0.0-beta7")
+        api("org.nd4j:nd4j-cuda-$cudaVersion-platform:$dl4jVersion")
+        api("org.deeplearning4j:deeplearning4j-cuda-$cudaVersion:$dl4jVersion")
     } else {
-        implementation("org.nd4j:nd4j-native:1.0.0-beta7")
-        implementation("org.deeplearning4j:deeplearning4j-core:1.0.0-beta7")
+        implementation("org.nd4j:nd4j-native-platform:$dl4jVersion")
+        implementation("org.deeplearning4j:deeplearning4j-core:$dl4jVersion")
     }
 
-    api("org.nd4j:nd4j-api:1.0.0-beta7")
-    api("org.datavec:datavec-data-image:1.0.0-beta7")
-    api("org.deeplearning4j:deeplearning4j-zoo:1.0.0-beta7")
-    api("org.knowm.xchart:xchart:3.6.4")
+    api("org.nd4j:nd4j-api:$dl4jVersion")
+    api("org.datavec:datavec-data-image:$dl4jVersion")
+    api("org.deeplearning4j:deeplearning4j-zoo:$dl4jVersion")
 
     runtimeOnly("org.slf4j:slf4j-simple:1.7.30")
 
