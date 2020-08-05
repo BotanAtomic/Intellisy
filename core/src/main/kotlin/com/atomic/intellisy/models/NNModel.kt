@@ -1,7 +1,7 @@
-package intellisy.models
+package com.atomic.intellisy.models
 
-import intellisy.core.ImageClassifier
-import intellisy.image.Image
+import com.atomic.intellisy.core.ImageClassifier
+import com.atomic.intellisy.image.Image
 import org.deeplearning4j.nn.api.NeuralNetwork
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.ConvolutionMode

@@ -1,6 +1,6 @@
-package intellisy.image
+package com.atomic.intellisy.image
 
-import intellisy.configuration.ClassifierConfiguration
+import com.atomic.intellisy.configuration.ClassifierConfiguration
 import org.datavec.image.loader.NativeImageLoader
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j

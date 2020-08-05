@@ -1,11 +1,11 @@
 package mnist
 
-import intellisy.configuration.ClassifierConfiguration
-import intellisy.core.ImageClassifier
-import intellisy.dataset.Dataset
-import intellisy.image.ImageFormat
-import intellisy.image.ImageTransformation
-import intellisy.models.SmallCNNModel
+import com.atomic.intellisy.configuration.ClassifierConfiguration
+import com.atomic.intellisy.core.ImageClassifier
+import com.atomic.intellisy.dataset.Dataset
+import com.atomic.intellisy.image.ImageFormat
+import com.atomic.intellisy.image.ImageTransformation
+import com.atomic.intellisy.models.SmallCNNModel
 import org.datavec.image.transform.CropImageTransform
 import org.datavec.image.transform.RotateImageTransform
 import java.io.File

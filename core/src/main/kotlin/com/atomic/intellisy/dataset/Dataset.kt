@@ -1,6 +1,6 @@
-package intellisy.dataset
+package com.atomic.intellisy.dataset
 
-import intellisy.configuration.ClassifierConfiguration
+import com.atomic.intellisy.configuration.ClassifierConfiguration
 import org.datavec.api.io.filters.BalancedPathFilter
 import org.datavec.api.io.filters.RandomPathFilter
 import org.datavec.api.io.labels.ParentPathLabelGenerator

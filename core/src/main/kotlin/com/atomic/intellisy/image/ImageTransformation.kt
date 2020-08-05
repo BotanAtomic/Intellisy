@@ -1,4 +1,4 @@
-package intellisy.image
+package com.atomic.intellisy.image
 
 import org.datavec.image.transform.ImageTransform
 import org.datavec.image.transform.PipelineImageTransform

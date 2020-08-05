@@ -1,7 +1,7 @@
-package intellisy.configuration
+package com.atomic.intellisy.configuration
 
-import intellisy.image.ImageFormat
-import intellisy.image.ImageTransformation
+import com.atomic.intellisy.image.ImageFormat
+import com.atomic.intellisy.image.ImageTransformation
 import org.datavec.image.loader.NativeImageLoader
 import org.deeplearning4j.nn.conf.CacheMode
 import org.deeplearning4j.nn.conf.WorkspaceMode

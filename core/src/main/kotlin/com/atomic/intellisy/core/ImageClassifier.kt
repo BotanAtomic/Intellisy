@@ -1,13 +1,13 @@
-package intellisy.core
+package com.atomic.intellisy.core
 
-import intellisy.configuration.ClassifierConfiguration
-import intellisy.dataset.Dataset
-import intellisy.exception.NoDatasetException
-import intellisy.image.Image
-import intellisy.image.ImageLoader
-import intellisy.models.NNModel
-import intellisy.models.SimpleCNNModel
-import intellisy.prediction.Prediction
+import com.atomic.intellisy.configuration.ClassifierConfiguration
+import com.atomic.intellisy.dataset.Dataset
+import com.atomic.intellisy.exception.NoDatasetException
+import com.atomic.intellisy.image.Image
+import com.atomic.intellisy.image.ImageLoader
+import com.atomic.intellisy.models.NNModel
+import com.atomic.intellisy.models.SimpleCNNModel
+import com.atomic.intellisy.prediction.Prediction
 import org.deeplearning4j.nn.api.Model
 import org.deeplearning4j.nn.api.NeuralNetwork
 import org.deeplearning4j.util.ModelSerializer
