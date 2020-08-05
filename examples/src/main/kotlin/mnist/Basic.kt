@@ -10,8 +10,8 @@ import java.io.File
 fun main() {
     val classifier = ImageClassifier(
         dataset = Dataset.fromFolder(
-            trainFolder = File("dataset/mnist/train"),
-            testFolder = File("dataset/mnist/test")
+            trainFolder = File("examples/dataset/mnist/train"),
+            testFolder = File("examples/dataset/mnist/test")
         ),
         configuration = ClassifierConfiguration(
             width = 28,
