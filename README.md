@@ -1,6 +1,13 @@
 # Intellisy
 
-![Logo](https://github.com/BotanAtomic/Intellisy/raw/master/logo.png =100x)
+<div style="display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: flex-start;
+	align-content: center;width:100%">
+<img src="https://github.com/BotanAtomic/Intellisy/raw/master/logo.png" width="40%">
+</div>
 
 More documentation comming soon...
 
