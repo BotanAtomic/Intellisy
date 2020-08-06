@@ -1,4 +1,4 @@
-package com.atomic.intellisy.core
+package com.atomic.intellisy.classifier
 
 import com.atomic.intellisy.configuration.ClassifierConfiguration
 import com.atomic.intellisy.dataset.Dataset

@@ -1,7 +1,7 @@
 package mnist
 
+import com.atomic.intellisy.classifier.ImageClassifier
 import com.atomic.intellisy.configuration.ClassifierConfiguration
-import com.atomic.intellisy.core.ImageClassifier
 import com.atomic.intellisy.dataset.Dataset
 import com.atomic.intellisy.image.ImageFormat
 import com.atomic.intellisy.models.SmallCNNModel
