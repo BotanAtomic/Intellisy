@@ -1,7 +1,6 @@
 <p align="center">
 <img src="https://github.com/BotanAtomic/Intellisy/raw/master/logo.png" width="30%">
 </p>
-<hr>
 More documentation comming soon...
 
 
