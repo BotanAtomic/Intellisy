@@ -14,8 +14,6 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    println("GPU ${project.findProperty("dl4j_gpu")}")
-
     if (project.findProperty("dl4j_gpu") == "true") {
         val cudaVersion = when (project.hasProperty("cuda-version")) {
             true -> project.property("cuda-version")
