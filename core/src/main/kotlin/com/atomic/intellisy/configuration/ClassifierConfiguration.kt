@@ -2,6 +2,7 @@ package com.atomic.intellisy.configuration
 
 import com.atomic.intellisy.image.ImageFormat
 import com.atomic.intellisy.image.ImageTransformation
+import com.atomic.intellisy.listeners.Listener
 import org.datavec.image.loader.NativeImageLoader
 import org.deeplearning4j.nn.conf.CacheMode
 import org.deeplearning4j.nn.conf.WorkspaceMode
@@ -20,6 +21,7 @@ data class ClassifierConfiguration(
     val epochs: Int = 10,
     val seed: Long = SecureRandom().nextLong(),
     val validationSplit: Double = 0.1,
+    val listeners: List<Listener>? = null,
 
     val cacheMode: CacheMode = CacheMode.DEVICE,
     val cudnnAlgoMode: ConvolutionLayer.AlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST,
