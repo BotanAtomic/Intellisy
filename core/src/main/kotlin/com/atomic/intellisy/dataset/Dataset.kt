@@ -16,7 +16,7 @@ interface Dataset {
 
     fun getClassCount(): Int
 
-    fun getTrainingSet(): DataSetIterator?
+    fun getTrainingSet(): DataSetIterator
 
     fun getValidationSet(): DataSetIterator?
 
@@ -39,7 +39,7 @@ class FolderDataset(
 ) : Dataset {
 
     private var classCount = 0
-    private var trainSet: DataSetIterator? = null
+    private lateinit var trainSet: DataSetIterator
     private var validationSet: DataSetIterator? = null
     private var testSet: DataSetIterator? = null
 
