@@ -15,6 +15,7 @@ import org.deeplearning4j.util.ModelSerializer
 import org.deeplearning4j.zoo.model.VGG16
 import org.nd4j.linalg.activations.Activation
 import org.nd4j.linalg.api.ndarray.INDArray
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler
 import org.nd4j.linalg.dataset.api.preprocessor.VGG16ImagePreProcessor
@@ -31,12 +32,38 @@ interface NNModel {
 
     fun restore(file: File): NeuralNetwork?
 
-    fun output(network: NeuralNetwork, image: Image): INDArray =
+    fun output(network: NeuralNetwork, image: Image): INDArray
+
+    fun train(network: NeuralNetwork, dataset: DataSetIterator, epochs: Int)
+}
+
+abstract class ComputationGraphModel : NNModel {
+
+    override fun output(network: NeuralNetwork, image: Image): INDArray =
+        (network as ComputationGraph).outputSingle(image)
+
+    override fun train(network: NeuralNetwork, dataset: DataSetIterator, epochs: Int) =
+        (network as ComputationGraph).fit(dataset, epochs)
+
+    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreComputationGraph(file)
+
+
+}
+
+abstract class MultiLayerModel : NNModel {
+
+    override fun output(network: NeuralNetwork, image: Image): INDArray =
         (network as MultiLayerNetwork).output(image)
+
+    override fun train(network: NeuralNetwork, dataset: DataSetIterator, epochs: Int) =
+        (network as MultiLayerNetwork).fit(dataset, epochs)
+
+    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreMultiLayerNetwork(file)
+
 }
 
 
-class VGG16Model : NNModel {
+class VGG16Model : ComputationGraphModel() {
 
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         classifier.configuration.apply {
@@ -56,14 +83,10 @@ class VGG16Model : NNModel {
         return VGG16ImagePreProcessor()
     }
 
-    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreComputationGraph(file)
-
-    override fun output(network: NeuralNetwork, image: Image): INDArray =
-        (network as ComputationGraph).outputSingle(image)
 
 }
 
-class SimpleCNNModel : NNModel {
+class SimpleCNNModel : MultiLayerModel() {
 
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         val classCount = classifier.getDataset().getClassCount()
@@ -123,11 +146,10 @@ class SimpleCNNModel : NNModel {
         }
     }
 
-    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreMultiLayerNetwork(file)
 
 }
 
-class SmallCNNModel : NNModel {
+class SmallCNNModel : MultiLayerModel() {
 
     override fun getModel(classifier: ImageClassifier): NeuralNetwork {
         classifier.configuration.apply {
@@ -168,7 +190,6 @@ class SmallCNNModel : NNModel {
         }
     }
 
-    override fun restore(file: File): NeuralNetwork? = ModelSerializer.restoreMultiLayerNetwork(file)
 }
 
 private fun dropoutLayer(value: Double = 0.5): DropoutLayer {
