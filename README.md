@@ -1,5 +1,7 @@
 # Intellisy
 
+![Logo](https://github.com/BotanAtomic/Intellisy/raw/master/logo.png)
+
 More documentation comming soon...
 
 
