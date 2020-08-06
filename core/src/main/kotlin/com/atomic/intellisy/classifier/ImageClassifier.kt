@@ -5,6 +5,7 @@ import com.atomic.intellisy.dataset.Dataset
 import com.atomic.intellisy.exception.NoDatasetException
 import com.atomic.intellisy.image.Image
 import com.atomic.intellisy.image.ImageLoader
+import com.atomic.intellisy.listeners.ListenerWrapper
 import com.atomic.intellisy.models.NNModel
 import com.atomic.intellisy.models.SimpleCNNModel
 import com.atomic.intellisy.prediction.Prediction
@@ -26,7 +27,7 @@ open class ImageClassifier
 
     val imageLoader = ImageLoader(configuration)
 
-    private fun eval(dataset: DataSetIterator?): Evaluation? {
+    fun eval(dataset: DataSetIterator?): Evaluation? {
         if (dataset == null) return null
         val evaluation = Evaluation()
         neuralNetwork.doEvaluation(dataset, evaluation)
@@ -39,26 +40,28 @@ open class ImageClassifier
 
     open fun train(callback: (Evaluation) -> Unit): Evaluation? {
         if (dataset == null) throw NoDatasetException()
-
         dataset.init(configuration)
 
+        val trainingSet = dataset.getTrainingSet()
+
         neuralNetwork = model.getModel(this)
+
+        configuration.listeners?.let {
+            (neuralNetwork as Model).setListeners(ListenerWrapper(this, it, dataset.getValidationSet()))
+        }
+
         val dataNormalizer = model.getScaler()
 
         dataset.apply {
-            listOf(getTrainingSet(), getValidationSet(), getTestSet()).forEach {
+            listOf(trainingSet, getValidationSet(), getTestSet()).forEach {
                 if (it != null) {
                     dataNormalizer.fit(it)
                     it.preProcessor = dataNormalizer
                 }
             }
 
+            model.train(neuralNetwork, trainingSet, configuration.epochs)
 
-            for (i in 0 until configuration.epochs) {
-                neuralNetwork.fit(getTrainingSet())
-
-                eval(getValidationSet())?.let(callback)
-            }
             return eval(getTestSet())
         }
     }
