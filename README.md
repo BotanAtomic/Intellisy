@@ -1,6 +1,6 @@
 # Intellisy
 
-![Logo](https://github.com/BotanAtomic/Intellisy/raw/master/logo.png)
+![Logo](https://github.com/BotanAtomic/Intellisy/raw/master/logo.png =100x)
 
 More documentation comming soon...
 
