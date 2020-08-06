@@ -1,7 +1,5 @@
-# Intellisy
-
 <p align="center">
-<img src="https://github.com/BotanAtomic/Intellisy/raw/master/logo.png" width="40%">
+<img src="https://github.com/BotanAtomic/Intellisy/raw/master/logo.png" width="30%">
 </p>
 
 More documentation comming soon...
