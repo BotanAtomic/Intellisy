@@ -1,13 +1,8 @@
 # Intellisy
 
-<div style="display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: center;
-	align-items: flex-start;
-	align-content: center;width:100%">
+<p align="center">
 <img src="https://github.com/BotanAtomic/Intellisy/raw/master/logo.png" width="40%">
-</div>
+</p>
 
 More documentation comming soon...
 
